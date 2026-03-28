@@ -1,0 +1,957 @@
+
+ <!DOCTYPE html>
+<html lang="en">
+<head>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GPA Master - Ben Mir Ikram</title>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
+    <style>
+ 
+        :root {
+            --primary: #2c3e50;
+            --accent: #e67e22;
+            --success: #27ae60;
+            --danger: #e74c3c;
+            --bg: #f4f7f6;
+            --card-bg: #ffffff;
+            --text: #2c3e50;
+        }
+
+        body.dark-mode {
+            --bg: #0f172a;
+            --card-bg: #1e293b;
+            --text: #f8fafc;
+            --primary: #f8fafc;
+        }
+
+#custom-splash {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: #2c3e50;   
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 10000; 
+    transition: opacity 0.5s ease, visibility 0.5s;
+}
+
+.splash-content {
+    text-align: center;
+    color: white;
+}
+
+.logo {
+    font-size: 80px;
+    margin-bottom: 10px;
+    animation: bounce 2s infinite;
+}
+
+.app-name {
+    font-size: 2.5em;
+    margin: 0;
+    color: #e67e22; 
+}
+
+.dev-name {
+    font-size: 1em;
+    opacity: 0.8;
+    margin-top: 5px;
+}
+
+.loader-bar {
+    width: 200px;
+    height: 4px;
+    background: rgba(255,255,255,0.1);
+    border-radius: 10px;
+    margin: 20px auto;
+    overflow: hidden;
+}
+
+.progress {
+    width: 0%;
+    height: 100%;
+    background: #e67e22;
+    animation: load 2s forwards;
+}
+
+@keyframes bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-20px); }
+}
+
+@keyframes load {
+    to { width: 100%; }
+}
+
+
+.splash-hidden {
+    opacity: 0;
+    visibility: hidden;
+}
+
+
+        body { 
+            font-family: 'Segoe UI', Tahoma, sans-serif; 
+            background: var(--bg); 
+            margin: 0; 
+            padding: 10px; 
+            color: var(--text); 
+            transition: 0.3s; 
+        }
+
+        .lang-switcher { display: flex; justify-content: flex-end; gap: 5px; margin-bottom: 10px; max-width: 450px; margin: 0 auto 10px auto; }
+        
+        .lang-btn { 
+            background: var(--card-bg); 
+            border: 1px solid #ddd; 
+            padding: 5px 10px; 
+            border-radius: 8px; 
+            cursor: pointer; 
+            font-size: 0.8em; 
+            font-weight: bold; 
+            transition: 0.3s; 
+            color: var(--text);
+        }
+        
+        .lang-btn:hover { background: var(--accent); color: white; }
+
+        .container { 
+            max-width: 450px; margin: 0 auto; 
+            background: var(--card-bg); 
+            padding: 25px; 
+            border-radius: 25px; 
+            box-shadow: 0 10px 25px rgba(0,0,0,0.05); 
+            text-align: center; 
+            transition: 0.3s;
+        }
+
+        input, select { 
+            width: 100%; padding: 14px; margin: 12px 0; 
+            border: 1px solid #ddd; border-radius: 12px; 
+            box-sizing: border-box; text-align: center; 
+            font-size: 15px; transition: 0.3s; 
+            background: var(--card-bg); 
+            color: var(--text);
+        }
+
+
+        .btn { width: 100%; padding: 14px; border: none; border-radius: 12px; cursor: pointer; font-weight: bold; margin-top: 10px; transition: 0.3s; font-size: 1em; }
+        .btn-start { background: var(--accent); color: white; }
+        .btn-calc { background: var(--primary); color: white; margin-top: 20px; }
+        .btn-reset { background: none; color: #7f8c8d; text-decoration: underline; font-size: 0.9em; cursor: pointer; }
+        
+        .card { 
+            border: 1px solid rgba(0,0,0,0.05); 
+            padding: 15px; 
+            border-radius: 18px; 
+            margin-bottom: 15px; 
+            background: var(--card-bg); 
+            text-align: initial; 
+            transition: 0.3s;
+        }
+
+        .card-info { display: flex; justify-content: space-between; font-weight: bold; margin-bottom: 12px; font-size: 0.85em; }
+        .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+        .input-box { display: flex; flex-direction: column; align-items: center; }
+        .input-box label { font-size: 0.7em; color: #888; margin-bottom: 5px; font-weight: bold; }
+        .input-box input { padding: 8px; border-radius: 8px; font-size: 14px; background: rgba(0,0,0,0.02); }
+        
+        #res-box { display: none; margin-top: 25px; padding: 20px; border-radius: 20px; transition: 0.5s; }
+        .pass { border: 3px solid var(--success); background: rgba(39, 174, 96, 0.1); color: var(--success); }
+        .fail { border: 3px solid var(--danger); background: rgba(231, 76, 60, 0.1); color: var(--danger); }
+        #avg { font-size: 3em; font-weight: bold; display: block; }
+        .badge { background: #fdf2e9; color: #e67e22; padding: 3px 8px; border-radius: 6px; }
+        .dev-credit { margin-top: 20px; font-size: 0.85em; color: #7f8c8d; font-weight: 600; }
+        input:disabled { background: #eee; cursor: not-allowed; border: 1px dashed #ccc; }
+        [dir="rtl"] .grid { direction: ltr; }
+    </style>
+</head>
+<body>
+
+<div id="custom-splash">
+    <div class="splash-content">
+        <div class="logo">🎓</div>
+        <h1 class="app-name">GPA Master</h1>
+     
+        <div class="loader-bar">
+            <div class="progress"></div>
+        </div>
+    </div>
+</div>
+
+
+    <div class="lang-switcher">
+        <button class="lang-btn" onclick="toggleDarkMode()" id="dark-btn">🌙</button>
+        <button class="lang-btn" onclick="setLanguage('ar')">العربية</button>
+        <button class="lang-btn" onclick="setLanguage('en')">English</button>
+    </div>
+
+   
+<div class="container" id="login">
+    <h2 id="txt-title" style="color: var(--accent); margin: 0;">GPA Master 🎓</h2>
+
+    <p id="txt-subtitle" style="font-size: 0.9em; color: #666; margin-bottom: 20px;"> Universities of Algeria </p>
+    <input type="text" id="userName" placeholder="Your Name">
+    
+    <select id="userMajor"
+
+
+ onchange="updateYearOptions()">
+        <option value="" disabled selected id="opt-select-major">اختر التخصص </option>
+        <option value="INFO">إعلام آلي </option>
+
+  <option value="FOND">أساسيات الإعلام الآلي</option>
+
+<option value="ASR">إدارة الأنظمة والشبكات</option>
+
+        <option value="AI_DS">ذكاء إصطناعي </option>
+
+        <option value="ST">علوم وتكنولوجيا </option>
+
+<option value="ENGINEERING">التخصصات الهندسية</option>
+
+        <option value="MIASHS">إعلام  آلي مطبق في العلوم الإنسانية والاجتماعية </option>
+
+        <option value="MED_DATA">البيانات الضخمة في الطب</option>
+    </select>
+
+    <select id="userYear"></select>
+
+    <select id="userSemester">
+        <option value="S1" id="opt-s1">السداسي الأول (S1)</option>
+        <option value="S2" id="opt-s2">السداسي الثاني (S2)</option>
+    </select>
+    <button class="btn btn-start" id="btn-login" onclick="startApp()">Start</button>
+</div>
+
+    <div class="container" id="app" style="display: none;">
+        <div style="text-align: initial; margin-bottom: 20px; border-bottom: 2px solid #f4f7f6; padding-bottom: 10px;">
+            <span id="txt-welcome">Welcome,</span> <b id="displayName" style="color: var(--accent);"></b> 🌟 <br>
+            <small id="yearLabel" style="color: #888; font-weight: bold;"></small>
+        </div>
+        
+        <div id="list"></div>
+
+        <div id="edit-controls" style="margin-top: 20px; padding: 15px; background: rgba(230, 126, 34, 0.1); border-radius: 15px; border: 1px dashed var(--accent); text-align: initial;">
+
+      <h4 id="txt-edit-title" style="margin-top:0; font-size: 0.9em; color: var(--accent);"></h4>
+
+            <div style="display: flex; gap: 5px; margin-bottom: 10px;">
+                <input type="text" id="new-subject-name" placeholder="اسم المادة" style="margin:0; flex: 2; padding: 8px;">
+                <input type="number" id="new-subject-coef" placeholder="المعامل" style="margin:0; flex: 1; padding: 8px;">
+            </div>
+            <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.85em;">
+                <div style="display: flex; gap: 15px; font-weight: bold;">
+                    <label style="cursor:pointer"><input type="checkbox" id="new-subject-td"> TD</label>
+                    <label style="cursor:pointer"><input type="checkbox" id="new-subject-tp"> TP</label>
+                </div>
+                <button class="btn btn-start" onclick="addNewSubject()" style="width: auto; padding: 8px 15px; margin:0; font-size: 0.8em;">إضافة مادة</button>
+            </div>
+        </div>
+
+        <div id="res-box">
+            <div id="txt-final-avg" style="font-size: 0.9em; font-weight: bold; text-transform: uppercase;">Final GPA:</div>
+            <span id="avg">0.00</span>
+            <div id="quote" style="margin: 10px 0; font-weight: 600;"></div>
+        </div>
+
+        <button class="btn btn-calc" id="btn-calculate" onclick="calculate()">Calculate GPA</button>
+        <button class="btn btn-calc" style="background: #2980b9;" onclick="saveReport('pdf')">Download PDF 📄</button>
+        <button class="btn btn-calc" style="background: #8e44ad;" onclick="saveReport('image')">Save as Image 🖼️</button>
+        <button class="btn btn-reset" id="btn-back" onclick="goBack()">Go Back / Reset</button>
+        <div class="dev-credit">Developed by Ben Mir Ikram © 2026</div>
+    </div>
+
+    <script>
+
+window.addEventListener('load', function() {
+    setTimeout(function() {
+        const splash = document.getElementById('custom-splash');
+        splash.classList.add('splash-hidden');
+    }, 2000); // 2000 تعني ثانيتين، يمكنك تقليلها لـ 1000
+});
+
+
+
+        let currentLang = 'en';
+
+const translations = {
+    ar: {
+        title: "حساب المعدل 🎓", subtitle: "الجامعات الجزائرية ",
+        placeholder: "أدخل اسمك", login: "دخول للنظام", welcome: "مرحبا بك،",
+        finalAvg: "المعدل النهائي:", calculate: "احسب المعدل الآن", back: "الرجوع / تغيير البيانات",
+        editTitle: "إضافة مادة",
+        selectMajor: "اختر التخصص أولاً",
+        pass: "مبروك النجاح يا {name} 🌟 ", fail: "يمكنك التعويض، لا تستسلم يا {name} 💪",
+        s1: "السداسي الأول (S1)", s2: "السداسي الثاني (S2)",
+
+        majors: {
+
+            INFO : "إعلام آلي",     
+   FOND:  "اساسيات الإعلام الألي",
+
+          ASR : " إدارة الأنظمة والشبكات",
+         AI_DS  : " ذكاء إصطناعي",
+            ST: "علوم وتكنولوجيا",
+    ENGINEERING: " التخصصات الهندسية",
+            MIASHS: "إعلام آلي مطبق (علوم إنسانية)",
+            MED_DATA: "البيانات الضخمة في الطب"
+
+        },
+        // أسماء السنوات بالتفصيل
+        years: {
+            L1_INFO: "سنة أولى إعلام آلي ",
+            L2_INFO: "سنة ثانية إعلام آلي ",
+            L3_INFO: "سنة ثالثة إعلام آلي ",
+            M1_FOND: "سنة أولى ماستر أساسيات إعلام آلي",
+M2_FOND: "سنة ثانية ماستر أساسيات إعلام آلي",
+            M1_AI_DS: "سنة أولى ذكاء اصطناعي وعلوم بيانات",
+M2_AI_DS: "سنة ثانية  ذكاء اصطناعي وعلوم بيانات",
+
+            M1_ASR: "سنة أولى ماستر إدارة الأنظمة والشبكات",
+M2_ASR: "سنة ثانية ماستر إدارة الأنظمة والشبكات",
+            ENG1: "سنة أولى مهندس إعلام آلي",
+            ENG2: "سنة ثانية مهندس إعلام آلي",
+            ENG3_IA: "سنة ثالثة مهندس ذكاء اصطناعي ",
+            ENG4_IA: "سنة رابعة مهندس ذكاء اصطناعي ",
+            ENG5_IA: "سنة خامسة مهندس ذكاء اصطناعي ",
+
+            L1_ST: "سنة أولى علوم والتكنولوجيا ",
+
+    L2_ME: "سنة أولى هندسة ميكانيكية",
+     L2_CE: "سنة أولى هندسة مدنية",
+    L2_EE: "سنة أولى هندسة كهربائية",
+     L2_IE: "سنة أولى هندسة صناعية",
+
+   L3_ME: "سنة ثانية هندسة ميكانيكية",
+   L3_CE: "سنة ثانية هندسة مدنية",
+    L3_EE: "سنة ثانية هندسة كهربائية",
+    L3_IE: "سنة ثانية هندسة صناعية",
+
+            L1_MIASHS: "سنة أولى  والإعلام الآلي المطبقة على العلوم الإنسانية والاجتماعية ",
+
+        L2_MIASHS: "سنة ثانية  والإعلام الآلي المطبقة على العلوم الإنسانية والاجتماعية ",    
+
+            L1_Medecine_BigData: "سنة أولى البيانات الضخمة في الطب",
+            L2_MED_BIGDATA: "سنة ثانية البيانات الضخمة في الطب"
+
+
+
+        }
+    },
+
+
+    en: {
+        title: "GPA Master 🎓", subtitle: "Universities of Algeria",
+        placeholder: "Enter Your Name", login: "Enter System", welcome: "Welcome,",
+        finalAvg: "Final GPA:", calculate: "Calculate Now", back: "Go Back / Reset",
+        editTitle: "Add Subject",
+        selectMajor: "Select Major First",
+        pass: "Congrats {name}, You Passed.🌟", fail: "Don't give up {name}. 💪",
+        s1: "Semester 1 (S1)", s2: "Semester 2 (S2)",
+
+
+        majors: {
+
+            INFO : "Computer Science",
+
+            FOND: " Foundations of Computer Science ",
+
+          ASR: " ASR",
+
+         AI_DS  : " Artificial Intelligence & Data Science ",
+
+        
+    ST: "Science & Technology",
+
+      ENGINEERING: "Engineering Majors",
+
+            MIASHS: "Applied CS ",
+
+  MED_DATA: "Big Data in Medicine"
+
+
+        },
+
+        years: {
+            L1_INFO: "1st Year CS ",
+            L2_INFO: "2nd Year CS ",
+            L3_INFO: "3rd Year CS ",
+
+            M1_FOND: "1st Year Master Foundations",
+   M2_FOND: " 2nd Year Master Foundations",
+
+            M1_AI_DS: "1st Year  AI & Data Science",
+M2_AI_DS: "2nd Year  AI & Data Science",
+
+            M1_ASR: "1st Year Master ASR",
+M2_ASR: " 2nd Year Master ASR",
+            ENG1: "1st Year Engineering",
+            ENG2: "2nd Year Engineering",
+            ENG3_IA: "3rd Year AI Engineering",
+            ENG4_IA: "4th Year AI Engineering",
+            ENG5_IA: "5th Year AI Engineering",
+       
+   L1_ST: "1st Year ST",
+
+  L2_ME: "1st Year Mechanical Engineering",
+  L2_CE: " 1st Year Civil Engineering",
+  L2_EE: " 1st Year Electrical Engineering",
+  L2_IE:  "1st Year Industrial Engineering",
+      
+L3_ME: "2nd Year Mechanical Engineering",
+  L3_CE: "2nd Year Civil Engineering",
+  L3_EE: "2nd Year Electrical Engineering",
+  L3_IE: "2nd Year Industrial Engineering",
+                  
+
+
+            L1_Medecine_BigData: "1st Year Big Data in Medicine",
+    L2_MED_BIGDATA: "2nd Year Big Data in Medicine"
+
+
+
+
+        }
+    }
+};
+
+        
+const majorGroups = {
+    
+
+"INFO": ["L1_INFO", "L2_INFO", "L3_INFO", "ENG1", "ENG2" ],
+
+  "FOND": [ "M1_FOND", "M2_FOND"],
+  
+"ASR": [ "M1_ASR", "M2_ASR"],
+
+   "AI_DS": [ "M1_AI_DS", "M2_AI_DS",  "ENG3_IA", "ENG4_IA", "ENG5_IA"],
+
+ "ST": ["L1_ST"],
+
+
+"ENGINEERING": ["L2_ME", "L3_ME", "L2_CE", "L3_CE", "L2_EE", "L3_EE", "L2_IE", "L3_IE"],
+
+    "MIASHS": ["L1_MIASHS", "L2_MIASHS"],
+
+ "MED_DATA": ["L1_Medecine_BigData", "L2_MED_BIGDATA"]
+
+
+};
+
+
+function getStudentLocation() {
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(success, error);
+    } else {
+        console.log("الجيلوكيشن غير مدعوم في هذا المتصفح");
+    }
+}
+
+
+let detectedUniversity = "University of Algeria"; 
+
+function getStudentLocation() {
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(success, error);
+    }
+}
+
+function success(position) {
+    const lat = position.coords.latitude;
+    const lon = position.coords.longitude;
+
+
+    if (lat >= 31.0 && lat <= 33.0) {
+        detectedUniversity = "University of Kasdi Merbah Ouargla 📍";
+    } else {
+        detectedUniversity = "University of Algeria";
+    }
+    
+    document.getElementById("txt-subtitle").innerText = detectedUniversity;
+}
+
+function error() {
+    detectedUniversity = "University of Algeria";
+    document.getElementById("txt-subtitle").innerText = detectedUniversity;
+}
+
+
+
+
+
+
+
+function updateYearOptions() {
+    const major = document.getElementById('userMajor').value;
+    const yearSelect = document.getElementById('userYear');
+    yearSelect.innerHTML = '';
+    
+    if (majorGroups[major]) {
+        majorGroups[major].forEach(key => {
+            let opt = document.createElement('option');
+            opt.value = key;
+            opt.innerText = translations[currentLang].years[key];
+            yearSelect.appendChild(opt);
+        });
+    }
+}
+
+            
+
+            
+   
+      const allData = {    
+    "ENG1_S1": [    
+        {n:"Analyse 1", c:3, td:true, tp:false}, {n:"Algebra 1", c:3, td:true, tp:false},    
+        {n:"Algorithm 1", c:4, td:true, tp:true}, {n:"Machine Structure", c:3, td:true, tp:false},    
+        {n:"Electronics", c:3, td:false, tp:false}, {n:"IOS1", c:3, td:false, tp:true},    
+        {n:"Web & OA", c:3, td:false, tp:true}    
+    ],    
+    "ENG1_S2": [    
+        {n:"Analysis 2", c:3, td:true, tp:false}, {n:"Algebra 2", c:3, td:true, tp:false},    
+        {n:"Algorithm 2", c:4, td:true, tp:true}, {n:"Architecture 2", c:4, td:true, tp:true},    
+        {n:"Math Logic", c:3, td:true, tp:false}, {n:"PSI", c:2, td:true, tp:false}, {n:"OET", c:1, td:false, tp:false}    
+    ],    
+    "L1_INFO_S1": [    
+        {n:"Algorithm 1", c:5, td:true, tp:true}, {n:"Analysis 1", c:4, td:true, tp:false},    
+        {n:"Algebra 1", c:2, td:true, tp:false}, {n:"Structure Machine 1", c:3, td:true, tp:false},    
+        {n:"Physique 1", c:2, td:true, tp:false}, {n:"English", c:1, td:false, tp:false},    
+        {n:"Open Source", c:1, td: false, tp:false}    
+    ],    
+    "L1_INFO_S2": [    
+        {n:"Algorithm 2", c:5, td:true, tp:true}, {n:"Analysis 2", c:3, td:true, tp:false},    
+        {n:"Algebra 2", c:2, td:true, tp:false}, {n:"Structure Machine 2", c:2, td:true, tp:false},    
+        {n:"Physique 2", c:2, td:true, tp:false}, {n:"Math Logic", c:1, td:true, tp:false},    
+        {n:"AI", c:1, td: false, tp:true}    
+    ],    
+    
+"L2_INFO_S1": [
+ {n:"CA", c:4, td:true, tp:true},
+ {n:"ADS3", c:4, td:true, tp:true},
+ {n:"IS", c:3, td:true, tp:false},
+ {n:"NM", c:3, td:true, tp:true},
+ {n:"ML", c:3, td:true, tp:false},
+ {n:"GT", c:2, td:true, tp:false},
+ {n:"FL2", c:2, td:false, tp:false}
+],
+
+"L2_INFO_S2": [
+ {n:"LT", c:3, td:true, tp:true},
+ {n:"Network", c:3, td:true, tp:true},
+ {n:"DB", c:3, td:true, tp:true},
+ {n:"OOP", c:3, td:false, tp:true},
+ {n:"OS1", c:3, td:true, tp:true},
+ {n:"WAD", c:3, td:false, tp:true},
+ {n:"FL3", c:1, td:false, tp:false}
+],
+
+"L3_INFO_S1": [
+ {n:"Compilation", c:3, td:true, tp:true},
+ {n:"HMI", c:3, td:true, tp:true},
+ {n:"SE", c:3, td:true, tp:true},
+ {n:"LP", c:3, td:true, tp:false},
+ {n:"PS", c:3, td:true, tp:false},
+ {n:"OS2", c:3, td:true, tp:true},
+ {n:"DEXBI", c:1, td:false, tp:false}
+],
+
+    "L3_INFO_S2": [    
+        {n:"SSD", c:4, td:false, tp:true}, {n:"AI", c:4, td:false, tp:true},    
+        {n:"MobApp", c:3, td:false, tp:true}, {n:"IT Security", c:3, td:true, tp:false},    
+        {n:"Scientific Writing ", c:1, td:false, tp:false}, {n:"C&D Startup", c:1, td:false, tp:false}    
+    ],    
+
+    "L1_ST_S1": [    
+        {n:"Math 1", c:3, td:true, tp:false},    
+        {n:"Physique 1 (Mécanique)", c:3, td:true, tp:true},    
+        {n:"Chimie 1", c:3, td:true, tp:true},    
+        {n:"Informatique 1", c:2, td:false, tp:true},    
+        {n:"Structure de la matière", c:2, td:true, tp:false},    
+        {n:"Méthodologie", c:1, td:false, tp:false},    
+        {n:"English 1", c:1, td:false, tp:false}    
+    ],    
+    "L1_ST_S2": [    
+        {n:"Math 2", c:3, td:true, tp:false},    
+        {n:"Physique 2 (Électricité)", c:3, td:true, tp:true},    
+        {n:"Chimie 2 (Thermo)", c:3, td:true, tp:true},    
+        {n:"Informatique 2", c:2, td:false, tp:true},    
+        {n:"Thermodynamique", c:2, td:true, tp:false},    
+        {n:"DessTechnique", c:1, td:false, tp:true},    
+        {n:"Ethique", c:1, td:false, tp:false}    
+    ],    
+
+    "L1_MIASHS_S1": [
+    {n: "Mathematic Analysis and Mathematic Logic", c: 3, td: false, tp: true},
+    {n: "Introduction to Probabilities and Descriptive Statistics 1", c: 2, td: true, tp: false},
+    {n: "Machine Structure et Operating System Administration", c: 2, td: true, tp: false},
+    {n: "Programming 1", c: 3, td: true, tp: false},
+    {n: "Introduction to the Economic Sciences", c: 2, td: false, tp: true},
+    {n: "Introduction to the Human and Social Sciences", c: 2, td: false, tp: true},
+    {n: "University work", c: 2, td: false, tp: false},
+    {n: "Ethics and Professional Deontology", c: 1, td: false, tp: false},
+    {n: "English 1", c: 1, td: false, tp: false}
+],
+"L1_MIASHS_S2": [
+    {n: "MIHS_LinAlg", c: 3, td: false, tp: true},
+    {n: "MIHS_AIintro", c: 3, td: true, tp: false},
+    {n: "MIHS_Prog2", c: 3, td: true, tp: false},
+    {n: "MIHS_ISSintro2", c: 2, td: true, tp: false},
+    {n: "MIHS_HSSintro2", c: 2, td: true, tp: false},
+    {n: "MIHS_univWork2", c: 2, td: false, tp: false},
+    {n: "MIHS_ETintro", c: 1, td: false, tp: true},
+    {n: "MIHS_LAWintro", c: 1, td: false, tp: false},
+    {n: "MIHS_English2", c: 1, td: false, tp: false}
+],
+
+"L2_MIASHS_S1": [
+    {n: "Advanced Programming", c: 3, td: true, tp: true},
+    {n: "Technical English in Computer Science", c: 1, td: false, tp: false},
+    {n: "Data Analysis 1", c: 3, td: false, tp: true},
+    {n: "Information Systems", c: 3, td: true, tp: false},
+    {n: "Applied Statistics in Mathematics & Computer Science", c: 3, td: true, tp: false},
+    {n: "History & Sociology of Social Media", c: 2, td: false, tp: true},
+    {n: "Digital Humanities", c: 2, td: true, tp: false},
+    {n: "Socio Digital Technology & ICT", c: 2, td: false, tp: true},
+    {n: "Medicine, Big Data & Information Systems", c: 1, td: false, tp: false},
+    {n: "Academic Research Methods in Math & Computer Science", c: 1, td: false, tp: false}
+],
+
+
+    "M1_AI_DS_S1": [    
+        {n: "Digital Image", c: 3, td: true, tp: true},     
+        {n: "Machine Learning 1", c: 4, td: true, tp: true},    
+        {n: "Probabilities and Data Statistics", c: 3, td: true, tp: true},    
+        {n: "Statistical Data Science", c: 3, td: true, tp: true},    
+        {n: "Data Exploration & Visualization", c: 2, td: true, tp: true},    
+        {n: "Gestion & Entrepreneurship", c: 1, td: false, tp: false}    
+    ],    
+    "M1_FOND_S1": [    
+        {n: "Anglais", c: 1, td: false, tp: false},    
+        {n: "Image Numérique", c: 3, td: true, tp: true},    
+        {n: "Statistiques pour DS", c: 3, td: true, tp: true},    
+        {n: "Programmation pour DS", c: 3, td: false, tp: true},    
+        {n: "Math pour l’apprentissage automatique", c: 4, td: true, tp: false},    
+        {n: "Exploration et visualisation", c: 2, td: true, tp: true}    
+    ],    
+    "M1_ASR_S1": [    
+        {n: "Anglais", c: 1, td: false, tp: false},    
+        {n: "Réseaux", c: 3, td: true, tp: true},    
+        {n: "Sécurité", c: 3, td: true, tp: true},    
+        {n: "Bases de données avancées", c: 3, td: true, tp: true},    
+        {n: "Modélisation et simulation des systèmes", c: 2, td: true, tp: true},    
+        {n: "Systèmes distribués", c: 3, td: true, tp: true},    
+        {n: "Systèmes d’exploitation et programmation système", c: 4, td: true, tp: true},    
+        {n: "Signaux et systèmes", c: 2, td: true, tp: false}    
+    ],    
+    "ENG3_IA_S1": [    
+        {n: "Linear and Dynamic Programming", c: 3, td: true, tp: false},    
+        {n: "AI Foundations", c: 4, td: true, tp: true},    
+        {n: "Architecture and Administration of Databases", c: 3, td: true, tp: true},    
+        {n: "Numerical Analysis 1", c: 3, td: true, tp: false},    
+        {n: "Software Engineering", c: 3, td: true, tp: false},    
+        {n: "Mobile Applications", c: 2, td: false, tp: true},    
+        {n: "Compilation", c: 3, td: true, tp: true}    
+    ],
+  "L1_Medecine_BigData_S2": [    
+        {n:"Mathematics 2", c:3, td:true, tp:false}, 
+        {n:"Programming 2", c:3, td:false, tp:true},    
+        {n:"Database 2", c:3, td:false, tp:true}, 
+        {n:"Unix Sys_Admin", c:2, td:false, tp:true},    
+        {n:"English Com 2", c:1, td:false, tp:false}
+    ],
+
+    "L2_MED_BIGDATA_S2": [    
+        {n:"Machine Learning 1", c:3, td:false, tp:true}, 
+        {n:"Big Data Tools & Architecture", c:3, td:false, tp:true},    
+        {n:"Cloud Computing", c:3, td:false, tp:true}, 
+        {n:"Data Visualization", c:2, td:false, tp:true},    
+        {n:"Knowledge Representation", c:2, td:false, tp:false},
+        {n:"Web & Mobile Applications", c:2, td:false, tp:false},
+        {n:"English Communication IV", c:1, td:false, tp:false}
+    ],
+
+};   
+
+function setLanguage(lang) {    
+    currentLang = lang;    
+    const t = translations[lang]; 
+    
+    document.body.dir = (lang === 'ar') ? 'rtl' : 'ltr';    
+    
+    document.getElementById('txt-title').innerText = t.title;      
+    document.getElementById('txt-subtitle').innerText = t.subtitle;     
+    document.getElementById('userName').placeholder = t.placeholder;    
+    document.getElementById('btn-login').innerText = t.login;       
+    document.getElementById('txt-welcome').innerText = t.welcome;    
+    document.getElementById('txt-final-avg').innerText = t.finalAvg;     
+    document.getElementById('btn-calculate').innerText = t.calculate;    
+    document.getElementById('btn-back').innerText = t.back;    
+    document.getElementById('opt-s1').innerText = t.s1;    
+    document.getElementById('opt-s2').innerText = t.s2;    
+
+    if(document.getElementById('txt-edit-title')) {
+        document.getElementById('txt-edit-title').innerText = t.editTitle;
+    }
+
+   
+    updateYearOptions(); 
+}
+
+
+function startApp() {    
+    getStudentLocation(); 
+    
+
+    const uName = document.getElementById('userName').value.trim();    
+    if(!uName) return alert(currentLang === 'ar' ? "يرجى كتابة الاسم" : "Please enter your name");    
+    const yearBase = document.getElementById('userYear').value;    
+    const semBase = document.getElementById('userSemester').value;    
+    finalSelectedYearKey = yearBase + "_" + semBase;    
+
+
+
+    
+    currentSubjects = JSON.parse(JSON.stringify(allData[finalSelectedYearKey] || []));
+
+    document.getElementById('login').style.display = 'none';    
+    document.getElementById('app').style.display = 'block';    
+    document.getElementById('displayName').innerText = uName;    
+    const yearText = document.getElementById('userYear').options[document.getElementById('userYear').selectedIndex].text;    
+    const semText = document.getElementById('userSemester').options[document.getElementById('userSemester').selectedIndex].text;    
+    document.getElementById('yearLabel').innerText = yearText + " - " + semText;    
+    render();    
+}
+
+function render() {    
+    const list = document.getElementById('list');    
+    list.innerHTML = '';    
+    currentSubjects.forEach((s, i) => {    
+        list.innerHTML += `<div class="card">    
+            <div class="card-info" style="align-items: center;">
+                <input type="text" value="${s.n}" onchange="currentSubjects[${i}].n = this.value" style="margin:0; width: 60%; border:none; background:transparent; font-weight:bold; text-align:initial; padding:0; color:var(--text);">
+                <div style="display:flex; align-items:center; gap:8px;">
+                    <span class="badge">C: <input type="number" value="${s.c}" onchange="currentSubjects[${i}].c = parseFloat(this.value)" style="width:20px; border:none; background:none; color:inherit; font-weight:bold; padding:0; text-align:center;"></span>
+                    <button onclick="removeSubject(${i})" style="background:none; border:none; color:var(--danger); cursor:pointer; font-size:1.2em; padding:0;">🗑️</button>
+                </div>
+            </div>    
+            <div class="grid">    
+                <div class="input-box"><label>TD</label><input type="number" step="0.01" id="td${i}" ${!s.td?'disabled placeholder="-"':''}></div>    
+                <div class="input-box"><label>TP</label><input type="number" step="0.01" id="tp${i}" ${!s.tp?'disabled placeholder="-"':''}></div>    
+                <div class="input-box"><label>Exam</label><input type="number" step="0.01" id="ex${i}" placeholder="00"></div>    
+            </div>    
+        </div>`;    
+    });    
+}
+
+
+              function calculate() {    
+    const subjects = currentSubjects; 
+    if(!subjects || subjects.length === 0) return;    
+    
+    let totalPts = 0, totalC = 0;    
+    subjects.forEach((s, i) => {    
+        let td = parseFloat(document.getElementById(`td${i}`).value) || 0;    
+        let tp = parseFloat(document.getElementById(`tp${i}`).value) || 0;    
+        let ex = parseFloat(document.getElementById(`ex${i}`).value) || 0;    
+        
+        let note = (s.td && s.tp) ? (td*0.2 + tp*0.2 + ex*0.6) : (s.td ? td*0.4+ex*0.6 : (s.tp ? tp*0.4+ex*0.6 : ex));    
+        
+        totalPts += note * s.c; 
+        totalC += s.c;    
+    });    
+
+    const res = (totalPts / totalC).toFixed(2);    
+    const resBox = document.getElementById('res-box');    
+    document.getElementById('avg').innerText = res;    
+    resBox.style.display = 'block';    
+    
+    const name = document.getElementById('displayName').innerText;    
+    if(res >= 10) {    
+        resBox.className = 'pass';    
+        document.getElementById('quote').innerText = translations[currentLang].pass.replace('{name}', name);    
+        confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } });    
+    } else {    
+        resBox.className = 'fail';    
+        document.getElementById('quote').innerText = translations[currentLang].fail.replace('{name}', name);    
+    }    
+    window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });    
+}
+  
+function goBack() {    
+    document.getElementById('app').style.display = 'none';    
+    document.getElementById('login').style.display = 'block';    document.getElementById('res-box').style.display = 'none';    
+}    
+
+function toggleDarkMode() {
+    const body = document.body;
+    body.classList.toggle('dark-mode');
+    
+    const btn = document.getElementById('dark-btn');
+    const isDark = body.classList.contains('dark-mode');
+    
+    
+    if (isDark) {
+        btn.innerText = '☀️';
+    } else {
+        btn.innerText = '🌙 ';
+    }
+    
+    
+    localStorage.setItem('theme', isDark ? 'dark' : 'light');
+}
+
+
+if (localStorage.getItem('theme') === 'dark') {
+    document.body.classList.add('dark-mode');
+
+    const btn = document.getElementById('dark-btn');
+if(btn){
+btn.innerText = '☀️ Light Mode';
+}
+}
+
+
+
+function addNewSubject() {
+    const name = document.getElementById('new-subject-name').value;
+    const coef = parseFloat(document.getElementById('new-subject-coef').value);
+    const hasTd = document.getElementById('new-subject-td').checked;
+    const hasTp = document.getElementById('new-subject-tp').checked;
+
+    if (!name || isNaN(coef)) {
+        alert(currentLang === 'ar' ? "يرجى إدخال اسم المادة والمعامل" : "Please enter subject name and coefficient");
+        return;
+    }
+
+    
+    currentSubjects.push({
+        n: name,
+        c: coef,
+        td: hasTd,
+        tp: hasTp
+    });
+
+   
+    document.getElementById('new-subject-name').value = '';
+    document.getElementById('new-subject-coef').value = '';
+    document.getElementById('new-subject-td').checked = false;
+    document.getElementById('new-subject-tp').checked = false;
+
+    render(); 
+}
+
+
+function removeSubject(index) {
+    currentSubjects.splice(index, 1);
+    render();
+}
+
+setLanguage('en');
+
+
+
+function saveReport(type) {
+    let name = document.getElementById("displayName").innerText || "Student";
+    let avg = document.getElementById("avg").innerText || "0.00";
+    let yearLabel = document.getElementById("yearLabel").innerText;
+    let currentDate = new Date().toLocaleDateString('en-GB');
+    let currentTime = new Date().toLocaleTimeString('en-GB');
+    
+    let tempContainer = document.createElement("div");
+    tempContainer.style.position = "absolute";
+    tempContainer.style.left = "-9999px";
+    tempContainer.style.top = "0";
+    
+    let reportHtml = `
+    <div id="capture-area" style="padding: 40px; font-family: 'Segoe UI', Arial, sans-serif; color: #2c3e50; background: white; width: 700px; border: 1px solid #eee;">
+        <div style="text-align: center; border-bottom: 4px solid #e67e22; padding-bottom: 15px; margin-bottom: 25px;">
+            <h1 style="margin: 0; color: #e67e22; font-size: 28px;">GPA Master Report</h1>
+            <p style="margin: 5px 0; color: #7f8c8d; font-size: 16px;">${detectedUniversity}</p>
+        </div>
+        <div style="margin-bottom: 25px; font-size: 16px; display: flex; justify-content: space-between; border-bottom: 1px solid #f4f4f4; padding-bottom: 10px;">
+            <div style="text-align: left;">
+                <p style="margin: 5px 0;"><strong>Name:</strong> ${name}</p>
+                <p style="margin: 5px 0;"><strong>Specialization:</strong> ${yearLabel}</p>
+            </div>
+            <div style="text-align: right;">
+                <p style="margin: 5px 0;"><strong>Date:</strong> ${currentDate}</p>
+                <p style="margin: 5px 0;"><strong>Time:</strong> ${currentTime}</p>
+            </div>
+        </div>
+        <table style="width: 100%; border-collapse: collapse; margin-top: 10px; background: white; border: 1px solid #ddd;">
+            <thead>
+                <tr style="background-color: #2c3e50; color: white;">
+                    <th style="padding: 12px; border: 1px solid #444; text-align: left;">Subject</th>
+                    <th style="padding: 12px; border: 1px solid #444; text-align: center;">TD</th>
+                    <th style="padding: 12px; border: 1px solid #444; text-align: center;">TP</th>
+                    <th style="padding: 12px; border: 1px solid #444; text-align: center;">Exam</th>
+                </tr>
+            </thead>
+            <tbody>
+    `;
+
+    currentSubjects.forEach((s, i) => {
+        let td = document.getElementById(`td${i}`).value || "-";
+        let tp = document.getElementById(`tp${i}`).value || "-";
+        let ex = document.getElementById(`ex${i}`).value || "-";
+        reportHtml += `
+            <tr style="text-align: center;">
+                <td style="padding: 12px; border: 1px solid #eee; text-align: left; font-weight: bold;">${s.n}</td>
+                <td style="padding: 12px; border: 1px solid #eee;">${td}</td>
+                <td style="padding: 12px; border: 1px solid #eee;">${tp}</td>
+                <td style="padding: 12px; border: 1px solid #eee;">${ex}</td>
+            </tr>`;
+    });
+
+    reportHtml += `
+            </tbody>
+        </table>
+        <div style="margin-top: 35px; padding: 25px; background: #f0fdf4; border: 2px solid #27ae60; border-radius: 15px; text-align: center;">
+            <h2 style="margin: 0; color: #27ae60; font-size: 32px;">Final GPA: ${avg}</h2>
+        </div>
+        <div style="margin-top: 30px; text-align: center; font-size: 13px; color: #bdc3c7; border-top: 1px solid #eee; padding-top: 10px;">
+            Generated by <b>GPA Master</b> - Ben Mir Ikram © 2026
+        </div>
+    </div>`;
+
+    tempContainer.innerHTML = reportHtml;
+    document.body.appendChild(tempContainer);
+
+    const element = tempContainer.querySelector("#capture-area");
+
+    setTimeout(() => {
+        html2canvas(element, { scale: 2 }).then(canvas => {
+            if (type === 'image') {
+                let link = document.createElement('a');
+                link.download = `GPA_${name}.png`;
+                link.href = canvas.toDataURL("image/png");
+                link.click();
+            } else {
+                const { jsPDF } = window.jspdf;
+                const pdf = new jsPDF('p', 'mm', 'a4');
+                const imgData = canvas.toDataURL('image/jpeg', 1.0);
+                pdf.addImage(imgData, 'JPEG', 0, 0, 210, (canvas.height * 210) / canvas.width);
+                pdf.save(`GPA_${name}.pdf`);
+            }
+            document.body.removeChild(tempContainer);
+        });
+    }, 500);
+}
+
+
+
+</script>
+  </body>
+</html>    
+
+ 
