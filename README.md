@@ -1,5 +1,6 @@
+# GPA Master (Academic Calculator)
+Technologies: Developed using HTML5, CSS3 (Custom Properties), Vanilla JavaScript, and libraries (html2canvas, jsPDF).
+Description: A specialized GPA management tool for Algerian universities featuring dynamic major selection, automatic university detection via Geolocation, and high-quality report exporting in PDF/Image formats. It includes a responsive multilingual interface with dark mode support for an optimized user experience.
+Link: 
+https://ikram1094517-create.github.io/GPA-Master/
 
-# Formal Document Editor:
- A simple app for creating formal requests and correspondence. It enables you to draft content and manage signee tables with ease, with the ability to save documents as images or print-ready PDF files. You can also open files from your device directly within the app.
-
-https://ikram1094517-create.github.io/DocuGen-Pro/ 
